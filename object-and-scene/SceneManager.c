@@ -27,6 +27,13 @@ bool SCENEMANAGER_createSceneManager(SceneManager **ptr_sceneManager, const char
 }
 
 bool SCENEMANAGER_addScene(SceneManager* sceneManager, char* locationPath, Scene* scene) {
+    if (TREE_isRoot(TREE_visitNode(sceneManager->SceneTree, locationPath))) {
+        if (!TREE_addDataToNode(sceneManager->SceneTree, locationPath, scene)) {
+            return FALSE;
+        }
+        return TRUE;
+    }
+
     char* sceneName = SCENE_getSceneName(scene);
 
     int size = snprintf(NULL, 0, "%s/%s", locationPath, sceneName) + 1;
@@ -34,6 +41,7 @@ bool SCENEMANAGER_addScene(SceneManager* sceneManager, char* locationPath, Scene
     if (!scenePath) {
         return FALSE;
     }
+
     snprintf(scenePath, size, "%s/%s", locationPath, sceneName);
 
     if (!TREE_addNode(sceneManager->SceneTree, locationPath, sceneName)) {

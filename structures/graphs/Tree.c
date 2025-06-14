@@ -74,28 +74,26 @@ bool TREE_isEmpty(Tree *tree) {
     return tree == NULL || tree->data == NULL;
 }
 
-char* TREE_getpathRecursive(Tree* tree, char* buildingPath) {
-    if (tree->father == NULL) {
-        return buildingPath;
+void TREE_buildPath(Tree* tree, char* buffer) {
+    if (tree->father != NULL) {
+        TREE_buildPath(tree->father, buffer);
+        strcat(buffer, "/");
     }
-
-    char temp[1024];
-    snprintf(temp, sizeof(temp), "%s/%s", tree->father->name, buildingPath);
-    if (strlen(temp) >= 1024) return buildingPath;
-
-    strcpy(buildingPath, temp);
-    return TREE_getpathRecursive(tree->father, buildingPath);
+    strcat(buffer, tree->name);
 }
 
 char* TREE_getPath(Tree *tree) {
     if (tree == NULL) return NULL;
 
-    char* buildingPath = malloc(1024);
-    if (!buildingPath) return NULL;
 
-    strcpy(buildingPath, tree->name);
-    return TREE_getpathRecursive(tree, buildingPath);
+    char* result = malloc(1024);
+    if (!result) return NULL;
+    result[0] = '\0';
+
+    TREE_buildPath(tree, result);
+    return result;
 }
+
 
 char* TREE_getName(Tree *tree) {
     return tree->name;
@@ -185,6 +183,10 @@ Tree* TREE_visitNode(Tree *tree, const char *locationPath) {
 }
 
 bool TREE_addNode(Tree *tree, char* locationPath, const char* name) {
+    if (locationPath == TREE_ROOT) {
+        return FALSE;
+    }
+
     Tree* node = TREE_visitNode(tree, locationPath);
     puts("oiiiii");
     if (node == NULL) return FALSE;
@@ -324,35 +326,37 @@ void TREE_print(Tree* tree, int level, void (*printADT)(GENERIC)) {
 }
 
 int TREE_getSize(Tree* tree) {
-    if (TREE_isLeaf(tree)) return 1;
+    if (tree == NULL) return 0;
+    int size = 1;
 
-    int size = 0;
     for (int i = 0; i < LK_getSize(tree->children); i++) {
-        size += 1 + TREE_getSize(LK_getData(tree->children, i));
+        Tree* child = (Tree*)LK_getData(tree->children, i);
+        size += TREE_getSize(child);
     }
 
     return size;
 }
 
-void recursiveTreeToArray(Tree* tree, GENERIC* array, int i) {
-    array[i] = tree->data;
-    i++;
-    if (TREE_isLeaf(tree)) {
-        return;
-    }
 
-    for (; i < LK_getSize(tree->children);) {
-        array[i] = LK_getData(tree->children, i);
-        i++;
-        recursiveTreeToArray(tree, array, i);
+void recursiveTreeToArray(Tree* tree, GENERIC* array, int* i) {
+    array[*i] = tree->data;
+    (*i)++;
+
+    if (TREE_isLeaf(tree)) return;
+
+    for (int j = 0; j < LK_getSize(tree->children); j++) {
+        Tree* child = (Tree*)LK_getData(tree->children, j);
+        recursiveTreeToArray(child, array, i);
     }
 }
 
 GENERIC* TREE_toArray(Tree* tree) {
-    GENERIC* array = (GENERIC*) malloc(sizeof(GENERIC) * TREE_getSize(tree));
+    int size = TREE_getSize(tree);
+    GENERIC* array = (GENERIC*) malloc(sizeof(GENERIC) * size);
     if (array == NULL) return NULL;
 
-    recursiveTreeToArray(tree, array, 0);
+    int i = 0;
+    recursiveTreeToArray(tree, array, &i);
 
     return array;
 }

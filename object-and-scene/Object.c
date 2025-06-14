@@ -25,6 +25,8 @@ bool OBJECT_createObject(Object** ptr_obj, char* name, float width, float heigth
     (*ptr_obj)->posX = posX;
     (*ptr_obj)->posY = posY;
 
+    (*ptr_obj)->figure = malloc(sizeof(Figure)); //TEMPORARIO
+
     return TRUE;
 }
 

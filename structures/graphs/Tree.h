@@ -8,7 +8,11 @@
 
 #include "../lists/LinkedList.h"
 
+#define TREE_ROOT NULL
+
 typedef struct Tree Tree;
+
+bool TREE_isRoot(Tree* tree);
 
 bool TREE_createTree(Tree **tree, const char* name, DataType dataType, void (*freeData)(GENERIC));
 

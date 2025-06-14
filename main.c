@@ -129,6 +129,8 @@ void testeInterface() {
         0.5f, 0.5f, 0.0f, 0.0f);
 
     NYS_print(project);
+
+    NYS_start(project);
 }
 
 int main(void) {

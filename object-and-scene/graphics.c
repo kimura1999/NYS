@@ -67,14 +67,23 @@ int graphics_createProgram(unsigned int vertexShader, unsigned int fragmentShade
 }
 
 void graphics_showScene(Scene *scene) {
-    int i = 0;
     Object** obj = SCENE_getArrayObjects(scene);
-    while (i < SCENE_getObjectsquantity(scene)) {
-        glBindVertexArray((OBJECT_getFigure(obj[i]))->VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        i++;
+    int count = SCENE_getObjectsquantity(scene);
+
+    for (int i = 0; i < count; i++) {
+        if (obj[i] != NULL) {
+            Figure* fig = OBJECT_getFigure(obj[i]);
+            FIGURE_createRectangleTest(fig);
+            if (fig != NULL) {
+                glBindVertexArray(fig->VAO);
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            }
+        }
     }
+
+    glBindVertexArray(0);
 }
+
 
 int graphics_start(const char* vertexShaderSource, const char* fragmentShaderSource, int width, int height, SceneManager* sceneManager) {
     if (!glfwInit()) return 0;
@@ -118,6 +127,7 @@ int graphics_start(const char* vertexShaderSource, const char* fragmentShaderSou
         return 0;
     }
 
+    //render loop
     while (!glfwWindowShouldClose(window)) {
         graphics_processInput(window);
 
@@ -125,7 +135,11 @@ int graphics_start(const char* vertexShaderSource, const char* fragmentShaderSou
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shaderProgram);
-        graphics_showScene(SCENEMANAGER_getScene(sceneManager, "start"));
+        Scene* scene = SCENEMANAGER_getScene(sceneManager, "ROOT-teste");
+        if (scene) {
+            graphics_showScene(scene);
+            puts("showScene() called");
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -92,13 +92,23 @@ bool NYS_addObjectToScene(PROJECT proj, char* scenePath, char* objectPath,
 }
 
 bool NYS_start(PROJECT proj) {
-    char* vertexShader;
-    READ_readShader("../shaders/vertex-shaders/vertexShader.txt", &vertexShader);
+    char* vertexShader = NULL;
+    char* fragmentShader = NULL;
 
-    char* fragmentShader;
-    READ_readShader("../shaders/fragment-shaders/fragmentShader.txt", &fragmentShader);
-    return graphics_start(vertexShader, fragmentShader, 800, 800, proj->sceneManager);
+    if (!READ_readShader("../shaders/vertex-shaders/vertexShader.txt", &vertexShader)) return FALSE;
+    if (!READ_readShader("../shaders/fragment-shaders/fragmentShader.txt", &fragmentShader)) {
+        free(vertexShader);
+        return FALSE;
+    }
+
+    bool result = graphics_start(vertexShader, fragmentShader, 800, 800, proj->sceneManager);
+
+    free(vertexShader);
+    free(fragmentShader);
+
+    return result;
 }
+
 
 void NYS_print(PROJECT proj) {
     printf("NYS_printProject() called\n");

@@ -42,7 +42,6 @@ bool SCENE_addObject(Scene* scene, char* locationPath, Object* object) {
     if (!TREE_addNode(scene->objects, locationPath, OBJECT_getName(object))) {
         return FALSE;
     }
-    puts("oiiiiii");
 
     int sizeOfPath = strlen(locationPath) * sizeof(char) + 1 +
         strlen(OBJECT_getName(object)) * sizeof(char) + 1;
